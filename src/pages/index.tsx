@@ -34,6 +34,7 @@ export default function index() {
             <ReactCodeMirror
               theme="dark"
               value={code}
+              height='47vh'
             />
           </div>
           <div className='col-span-4 bg-gray-200 p-4 rounded-xl'>
