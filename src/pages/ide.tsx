@@ -38,9 +38,46 @@ export default function index() {
       const chunk = decoder.decode(value);
       // Remove backticks from the chunk
       const cleanedChunk = chunk.replace(/`/g, '');
-      // Update the hint state with the cleaned data
-      setHint(cleanedChunk);
-      setHints((prevHints: any) => [...prevHints, cleanedChunk]);
+      // Append "🪄 Hint : " to the cleaned data
+      const hintWithPrefix = "🪄 Hint : " + cleanedChunk;
+      // Update the hint state with the modified data
+      setHints((prevHints: any) => [...prevHints, hintWithPrefix]);
+
+      // Read some more, and call this function again
+      return reader.read().then(processText);
+    });
+  }
+
+  async function generateExplanation() {
+    const response = await fetch('/api/explain', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ code, problemStatement, language }),
+    });
+
+    if (!response.body) {
+      throw Error("ReadableStream not yet supported in this browser.");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+
+    reader.read().then(function processText({ done, value }): Promise<void> {
+      if (done) {
+        console.log('Stream complete');
+        return Promise.resolve();
+      }
+
+      // Decode the stream
+      const chunk = decoder.decode(value);
+      // Remove backticks from the chunk
+      const cleanedChunk = chunk.replace(/`/g, '');
+      // Append "🔑 Hint : " to the cleaned data
+      const hintWithPrefix = "✨ Explanation : " + cleanedChunk;
+      // Update the hint state with the modified data
+      setHints((prevHints: any) => [...prevHints, hintWithPrefix]);
 
       // Read some more, and call this function again
       return reader.read().then(processText);
@@ -80,18 +117,26 @@ export default function index() {
           </div>
           <div className='col-span-4 bg-gray-200 p-4 rounded-xl'>
             <div className='flex flex-row justify-between'>
-              <h1 className='text-lg font-bold'>Hints & Solutions</h1>
-              <button onClick={generateHint} className='p-2 flex flex-row gap-2 font-bold rounded-lg bg-yellow-400 hover:bg-yellow-500'>
-                <p>Hint</p>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 my-1">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-              </button>
+              <h1 className='text-xl font-bold'>Hints & Solutions</h1>
+              <div className='flex flex-row gap-2'>
+                <button onClick={generateHint} className='p-2 flex flex-row gap-2 font-bold rounded-lg bg-yellow-400 hover:bg-yellow-500'>
+                  <p>Hint</p>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 my-1">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                </button>
+                <button onClick={generateExplanation} className='p-2 flex flex-row gap-2 font-bold rounded-lg bg-yellow-400 hover:bg-yellow-500'>
+                  <p>Explanation</p>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 my-1">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                </button>
+              </div>
             </div>
             <div style={{ height: '47vh', overflow: 'auto' }}>
               <div>
                 <MDXProvider>
-                  {hints.map((hint, index) => (
+                  {hints.slice().reverse().map((hint, index) => (
                     <div key={index} className='bg-white p-2 rounded-xl mt-2'>
                       {hint}
                     </div>
