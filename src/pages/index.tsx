@@ -42,11 +42,6 @@ export default function index() {
     });
   }
 
-  //Temporarily set a random problem statement
-  useEffect(() => {
-    setProblemStatement("Write a JavaScript function to calculate the sum of two numbers. ");
-  }, [])
-
   return (
     <div className='p-3'>
       <div>
