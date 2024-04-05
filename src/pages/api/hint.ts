@@ -1,32 +1,24 @@
 import OpenAI from "openai";
+import { NextApiRequest, NextApiResponse } from "next";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function generateHint(req: any, res: any) {
+export default async function generateHint(req: NextApiRequest, res: NextApiResponse) {
+    const { code, problemStatement, language } = req.body;
 
-    const { code } = await req.json();
-
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-
-    const stream = await openai.chat.completions.create({
+    const response = await openai.chat.completions.create({
         messages: [
-            { role: "system", content: "" },
-            { role: "user", content: "" },
-            { role: "user", content: `Code : ${code}` }
+            { role: "system", content: `You are a helpful assistant that translates English to ${language} code. Give explanation too in depth 200 words.` },
+            { role: "user", content: problemStatement },
+            { role: "assistant", content: `Code : ${code}` }
         ],
         model: "gpt-3.5-turbo",
-        stream: true,
     });
 
-    (stream as any).on("data", (data: any) => {
-        res.write(`data: ${JSON.stringify(data)}\n\n`);
-    });
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Cache-Control', 'no-cache');
 
-    (stream as any).on("end", () => {
-        res.end();
-    });
+    res.send(response['choices'][0]['message']['content']);
 }

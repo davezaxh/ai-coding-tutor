@@ -8,7 +8,7 @@ export default function index() {
   const [hint, setHint] = useState("");
 
   async function generateHint() {
-    const response = fetch('/api/hint', {
+    const response = await fetch('/api/hint', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -16,16 +16,31 @@ export default function index() {
       body: JSON.stringify({ code, problemStatement, language }),
     });
 
-    response.then((res) => {
-      const reader = res.body?.getReader();
-      reader?.read().then(({ value, done }) => {
-        if (!done) {
-          setHint(value ? new TextDecoder().decode(value) : "");
-        }
-      });
+    if (!response.body) {
+      throw Error("ReadableStream not yet supported in this browser.");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+
+    reader.read().then(function processText({ done, value }): Promise<void> {
+      if (done) {
+        console.log('Stream complete');
+        return Promise.resolve();
+      }
+
+      // Decode the stream
+      const chunk = decoder.decode(value);
+      // Remove backticks from the chunk
+      const cleanedChunk = chunk.replace(/`/g, '');
+      // Update the hint state with the cleaned data
+      setHint(cleanedChunk);
+
+      // Read some more, and call this function again
+      return reader.read().then(processText);
     });
   }
-  
+
   //Temporarily set a random problem statement
   useEffect(() => {
     setProblemStatement("Write a JavaScript function to calculate the sum of two numbers. ");
@@ -63,8 +78,8 @@ export default function index() {
               <h1 className='text-lg'>Hints & Solutions</h1>
               <button onClick={generateHint} className='p-2 flex flex-row gap-2 text-white rounded-lg bg-purple-600 hover:bg-purple-700'>
                 <p>Hint</p>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-4 h-4 my-1">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 my-1">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
               </button>
             </div>
