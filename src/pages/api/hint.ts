@@ -10,7 +10,7 @@ export default async function generateHint(req: NextApiRequest, res: NextApiResp
 
     const response = await openai.chat.completions.create({
         messages: [
-            { role: "system", content: `You are a helpful assistant that translates English to ${language} code. Give explanation too in depth 200 words.` },
+            { role: "system", content: `You are a AI Coding Tutor. You help people with writing code. YOU WILL NEVER GIVE DIRECT SOLUTIONS TO THE USER. You give relevant hints to the user to complete the program and run it sucessfully.` },
             { role: "user", content: problemStatement },
             { role: "assistant", content: `Code : ${code}` }
         ],

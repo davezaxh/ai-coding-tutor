@@ -1,5 +1,6 @@
 import ReactCodeMirror from '@uiw/react-codemirror';
 import React, { useEffect, useState } from 'react'
+import { MDXProvider } from '@mdx-js/react'
 
 export default function index() {
   const [code, setCode] = useState("");
@@ -83,7 +84,13 @@ export default function index() {
                 </svg>
               </button>
             </div>
-            {hint}
+            <div className='h-40vh overflow-hidden'>
+              <div className='overflow-y-auto'>
+                <MDXProvider>
+                  {hint}
+                </MDXProvider>
+              </div>
+            </div>
           </div>
         </div>
         <div className='p-2 bg-gray-700 h-[20vh]'>
