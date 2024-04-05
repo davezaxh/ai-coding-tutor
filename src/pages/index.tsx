@@ -10,7 +10,7 @@ export default function landing() {
     function updateProblemStatement(e: any) {
         e.preventDefault();
         setProblemStatement(e.target.value);
-        console.log(problemStatement)
+        router.push(`/ide?problemStatement=${problemStatement}`)
     }
 
     return (
@@ -25,6 +25,7 @@ export default function landing() {
                     <h1 className='text-xl font-bold'>Enter problem statement you are trying to solve here :</h1>
                     <div className='flex flex-col gap-3'>
                         <textarea
+                            placeholder='Enter problem statement here....'
                             className='border p-2 mt-2 rounded-xl'
                             rows={4} // Set the default number of lines to 4
                             value={problemStatement}

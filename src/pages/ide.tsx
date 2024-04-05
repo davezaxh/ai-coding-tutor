@@ -1,10 +1,12 @@
 import ReactCodeMirror from '@uiw/react-codemirror';
 import React, { useEffect, useState } from 'react'
 import { MDXProvider } from '@mdx-js/react'
+import { useRouter } from 'next/router';
 
 export default function index() {
+  const router = useRouter();
   const [code, setCode] = useState("");
-  const [problemStatement, setProblemStatement] = useState("");
+  const { problemStatement } = router.query;
   const [language, setLanguage] = useState<string | null>(null);
   const [hint, setHint] = useState("");
 
@@ -72,7 +74,7 @@ export default function index() {
           <div className='col-span-4 bg-gray-200 p-4 rounded-xl'>
             <div className='flex flex-row justify-between'>
               <h1 className='text-lg'>Hints & Solutions</h1>
-              <button onClick={generateHint} className='p-2 flex flex-row gap-2 text-white rounded-lg bg-purple-600 hover:bg-purple-700'>
+              <button onClick={generateHint} className='p-2 flex flex-row gap-2 font-bold rounded-lg bg-yellow-400 hover:bg-yellow-500'>
                 <p>Hint</p>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 my-1">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
