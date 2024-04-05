@@ -9,8 +9,12 @@ export default function landing() {
 
     function updateProblemStatement(e: any) {
         e.preventDefault();
-        setProblemStatement(e.target.value);
-        router.push(`/ide?problemStatement=${problemStatement}`)
+        if (problemStatement.trim() !== "") {
+            router.push(`/ide?problemStatement=${problemStatement}`);
+        } else {
+            // Add your logic here to handle the case where the textarea is empty
+            alert("Please enter a problem statement before submitting.");
+        }
     }
 
     return (
