@@ -103,13 +103,23 @@ export default function index() {
         </div>
         <div className='h-[60vh] grid grid-cols-12 gap-2'>
           <div className='col-span-8 bg-gray-200 p-4 rounded-xl'>
-            <div className='pb-3 flex flex-row gap-2'>
-              <h1 className='p-2'>Select Language : </h1>
-              <select className='p-2 bg-gray-100 rounded-lg' onChange={(e) => setLanguage(e.target.value)}>
-                <option value="js">Javascript</option>
-                <option value="py">Python</option>
-                <option value="cpp">C++</option>
-              </select>
+            <div className='pb-3 flex flex-row justify-between'>
+              <div className='flex flex-row gap-2'>
+                <h1 className='p-2'>Select Language : </h1>
+                <select className='p-2 bg-gray-100 rounded-lg' onChange={(e) => setLanguage(e.target.value)}>
+                  <option value="js">Javascript</option>
+                  <option value="py">Python</option>
+                  <option value="cpp">C++</option>
+                </select>
+              </div>
+              <div>
+                <button className='p-2 flex flex-row gap-2 font-bold rounded-lg bg-yellow-400 hover:bg-yellow-500'>
+                  <p>Run Code</p>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 my-1">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                </button>
+              </div>
             </div>
             <ReactCodeMirror
               theme="light"
