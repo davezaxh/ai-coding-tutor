@@ -1,5 +1,6 @@
 import ReactCodeMirror from '@uiw/react-codemirror';
 import React, { useEffect, useState } from 'react'
+import Link from 'next/link';
 import { MDXProvider } from '@mdx-js/react'
 import { useRouter } from 'next/router';
 
@@ -9,6 +10,7 @@ export default function index() {
   const { problemStatement } = router.query;
   const [language, setLanguage] = useState<string | null>(null);
   const [hint, setHint] = useState("");
+  const [hints, setHints] = useState<string[]>([]);
 
   async function generateHint() {
     const response = await fetch('/api/hint', {
@@ -38,6 +40,7 @@ export default function index() {
       const cleanedChunk = chunk.replace(/`/g, '');
       // Update the hint state with the cleaned data
       setHint(cleanedChunk);
+      setHints((prevHints: any) => [...prevHints, cleanedChunk]);
 
       // Read some more, and call this function again
       return reader.read().then(processText);
@@ -47,7 +50,11 @@ export default function index() {
   return (
     <div className='p-3'>
       <div>
-        <h1 className='text-4xl font-bold'>AI Coding Tutor</h1>
+        <Link href="/">
+          <h1 className='text-4xl font-bold mb-4'>
+            AI Coding Tutor
+          </h1>
+        </Link>
       </div>
       <div className='flex flex-col gap-2'>
         <div>
@@ -73,7 +80,7 @@ export default function index() {
           </div>
           <div className='col-span-4 bg-gray-200 p-4 rounded-xl'>
             <div className='flex flex-row justify-between'>
-              <h1 className='text-lg'>Hints & Solutions</h1>
+              <h1 className='text-lg font-bold'>Hints & Solutions</h1>
               <button onClick={generateHint} className='p-2 flex flex-row gap-2 font-bold rounded-lg bg-yellow-400 hover:bg-yellow-500'>
                 <p>Hint</p>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 my-1">
@@ -81,10 +88,14 @@ export default function index() {
                 </svg>
               </button>
             </div>
-            <div className='h-40vh overflow-hidden'>
-              <div className='overflow-y-auto'>
+            <div style={{ height: '47vh', overflow: 'auto' }}>
+              <div>
                 <MDXProvider>
-                  {hint}
+                  {hints.map((hint, index) => (
+                    <div key={index} className='bg-white p-2 rounded-xl mt-2'>
+                      {hint}
+                    </div>
+                  ))}
                 </MDXProvider>
               </div>
             </div>
