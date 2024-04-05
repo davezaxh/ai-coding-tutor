@@ -86,11 +86,14 @@ export default function index() {
 
   return (
     <div className='p-3'>
-      <div>
+      <div className='flex flex-row justify-between'>
         <Link href="/">
           <h1 className='text-4xl font-bold mb-4'>
             AI Coding Tutor
           </h1>
+        </Link>
+        <Link href="/" className='bg-yellow-400 py-3 px-6 rounded-lg font-bold'>
+          New Problem
         </Link>
       </div>
       <div className='flex flex-col gap-2'>
