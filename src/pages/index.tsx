@@ -1,96 +1,42 @@
-import ReactCodeMirror from '@uiw/react-codemirror';
-import React, { useEffect, useState } from 'react'
-import { MDXProvider } from '@mdx-js/react'
+import React, { useState } from 'react'
+import { useRouter } from 'next/router'
+import Link from 'next/link';
 
-export default function index() {
-  const [code, setCode] = useState("");
-  const [problemStatement, setProblemStatement] = useState("");
-  const [language, setLanguage] = useState<string | null>(null);
-  const [hint, setHint] = useState("");
+export default function landing() {
 
-  async function generateHint() {
-    const response = await fetch('/api/hint', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ code, problemStatement, language }),
-    });
+    const [problemStatement, setProblemStatement] = useState("");
+    const router = useRouter();
 
-    if (!response.body) {
-      throw Error("ReadableStream not yet supported in this browser.");
+    function updateProblemStatement(e: any) {
+        e.preventDefault();
+        setProblemStatement(e.target.value);
+        console.log(problemStatement)
     }
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder('utf-8');
-
-    reader.read().then(function processText({ done, value }): Promise<void> {
-      if (done) {
-        console.log('Stream complete');
-        return Promise.resolve();
-      }
-
-      // Decode the stream
-      const chunk = decoder.decode(value);
-      // Remove backticks from the chunk
-      const cleanedChunk = chunk.replace(/`/g, '');
-      // Update the hint state with the cleaned data
-      setHint(cleanedChunk);
-
-      // Read some more, and call this function again
-      return reader.read().then(processText);
-    });
-  }
-
-  return (
-    <div className='p-3'>
-      <div>
-        <h1 className='text-4xl font-bold'>AI Coding Tutor</h1>
-      </div>
-      <div className='flex flex-col gap-2'>
-        <div>
-          <h1 className='text-xl font-semibold'>Problem Statement : </h1>
-          <p>{problemStatement}</p>
-        </div>
-        <div className='h-[60vh] grid grid-cols-12 gap-2'>
-          <div className='col-span-8 bg-gray-200 p-4 rounded-xl'>
-            <div className='pb-3 flex flex-row gap-2'>
-              <h1 className='p-2'>Select Language : </h1>
-              <select className='p-2 bg-gray-100 rounded-lg' onChange={(e) => setLanguage(e.target.value)}>
-                <option value="js">Javascript</option>
-                <option value="py">Python</option>
-                <option value="cpp">C++</option>
-              </select>
+    return (
+        <div className='flex h-screen justify-center items-center'>
+            <div className='text-center'>
+                <Link href="/">
+                    <h1 className='text-4xl font-bold mb-4'>
+                        AI Coding Tutor
+                    </h1>
+                </Link>
+                <div>
+                    <h1 className='text-xl font-bold'>Enter problem statement you are trying to solve here :</h1>
+                    <div className='flex flex-col gap-3'>
+                        <textarea
+                            className='border p-2 mt-2 rounded-xl'
+                            rows={4} // Set the default number of lines to 4
+                            value={problemStatement}
+                            onChange={(e) => setProblemStatement(e.target.value)}
+                            style={{ minWidth: '300px' }} // Set a minimum width for the textarea
+                        />
+                        <button className='bg-yellow-400 py-3 rounded-lg font-bold' onClick={updateProblemStatement}>
+                            Get Started
+                        </button>
+                    </div>
+                </div>
             </div>
-            <ReactCodeMirror
-              theme="light"
-              value={code}
-              height='47vh'
-              onChange={(value) => setCode(value)}
-            />
-          </div>
-          <div className='col-span-4 bg-gray-200 p-4 rounded-xl'>
-            <div className='flex flex-row justify-between'>
-              <h1 className='text-lg'>Hints & Solutions</h1>
-              <button onClick={generateHint} className='p-2 flex flex-row gap-2 text-white rounded-lg bg-purple-600 hover:bg-purple-700'>
-                <p>Hint</p>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 my-1">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-              </button>
-            </div>
-            <div className='h-40vh overflow-hidden'>
-              <div className='overflow-y-auto'>
-                <MDXProvider>
-                  {hint}
-                </MDXProvider>
-              </div>
-            </div>
-          </div>
         </div>
-        <div className='p-2 bg-gray-700 h-[20vh]'>
-        </div>
-      </div>
-    </div>
-  )
+    )
 }
