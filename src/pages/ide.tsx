@@ -4,13 +4,14 @@ import Link from 'next/link';
 import { MDXProvider } from '@mdx-js/react'
 import { useRouter } from 'next/router';
 
+
 export default function index() {
   const router = useRouter();
   const [code, setCode] = useState("");
   const { problemStatement } = router.query;
   const [language, setLanguage] = useState<string | null>(null);
-  const [hint, setHint] = useState("");
   const [hints, setHints] = useState<string[]>([]);
+  const [output, setOutput] = useState('');
 
   async function generateHint() {
     const response = await fetch('/api/hint', {
@@ -47,6 +48,19 @@ export default function index() {
       return reader.read().then(processText);
     });
   }
+
+  async function runCode(){ 
+     const response = await fetch('/api/compile', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code, language: "py" }),
+    });
+
+    const data = await response.json();
+    setOutput(data.output);
+  } 
 
   async function generateExplanation() {
     const response = await fetch('/api/explain', {
@@ -97,7 +111,7 @@ export default function index() {
         </Link>
       </div>
       <div className='flex flex-col gap-2'>
-        <div>
+        <div >
           <h1 className='text-xl font-semibold'>Problem Statement : </h1>
           <p>{problemStatement}</p>
         </div>
@@ -106,14 +120,15 @@ export default function index() {
             <div className='pb-3 flex flex-row justify-between'>
               <div className='flex flex-row gap-2'>
                 <h1 className='p-2'>Select Language : </h1>
-                <select className='p-2 bg-gray-100 rounded-lg' onChange={(e) => setLanguage(e.target.value)}>
+                <select className='p-2 bg-gray-100 rounded-lg' onChange={(e) => {setLanguage(e.target.value)}}>
                   <option value="js">Javascript</option>
                   <option value="py">Python</option>
                   <option value="cpp">C++</option>
                 </select>
               </div>
+              
               <div>
-                <button className='p-2 flex flex-row gap-2 font-bold rounded-lg bg-yellow-400 hover:bg-yellow-500'>
+                <button onClick={runCode} className='p-2 flex flex-row gap-2 font-bold rounded-lg bg-yellow-400 hover:bg-yellow-500'>
                   <p>Run Code</p>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 my-1">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -125,7 +140,9 @@ export default function index() {
               theme="light"
               value={code}
               height='47vh'
-              onChange={(value) => setCode(value)}
+              onChange={(value) => {
+                setCode(value);
+              }}
             />
           </div>
           <div className='col-span-4 bg-gray-200 p-4 rounded-xl'>
@@ -160,6 +177,7 @@ export default function index() {
           </div>
         </div>
         <div className='p-2 bg-gray-700 h-[20vh]'>
+          {output}
         </div>
       </div>
     </div>

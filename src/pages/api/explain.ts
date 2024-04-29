@@ -22,3 +22,4 @@ export default async function generateHint(req: NextApiRequest, res: NextApiResp
 
     res.send(response['choices'][0]['message']['content']);
 }
+
