@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 const baseurl = process.env.JUDGE0_URL;
 
 export default async function compileCode(req: NextApiRequest, res: NextApiResponse) {
-    const { code, language } = req.body;
+    const { code, language, input } = req.body;
     const languageMap: { [key: string]: number } = {
         "py": 71,
         "cpp": 76,
@@ -15,7 +15,7 @@ export default async function compileCode(req: NextApiRequest, res: NextApiRespo
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({source_code : code, language_id : lid}),
+        body: JSON.stringify({source_code : code, language_id : lid, stdin: input}),
     });
     // console.log(code+"\n"+language);
     
