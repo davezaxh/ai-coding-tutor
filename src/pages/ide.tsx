@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link';
 import { MDXProvider } from '@mdx-js/react'
 import { useRouter } from 'next/router';
-
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function index() {
   const router = useRouter();
@@ -14,8 +14,6 @@ export default function index() {
   const [output, setOutput] = useState('');
 
   const [loading, setLoading] = useState(false);
-
-  console.log(input, testOutput);
 
   async function generateHint() {
     const response = await fetch('/api/hint', {
@@ -105,8 +103,63 @@ export default function index() {
     });
   }
 
+  async function errorFix() {
+    const response = await fetch('/api/errorfix', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ code, problemStatement, language, input, output, testOutput }),
+    });
+
+    if (!response.body) {
+      throw Error("ReadableStream not yet supported in this browser.");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+
+    reader.read().then(function processText({ done, value }): Promise<void> {
+      if (done) {
+        console.log('Stream complete');
+        return Promise.resolve();
+      }
+
+      // Decode the stream
+      const chunk = decoder.decode(value);
+      // Remove backticks from the chunk
+      const cleanedChunk = chunk.replace(/`/g, '');
+      // Append "🔑 Hint : " to the cleaned data
+      const hintWithPrefix = "✨ Error Fix : " + cleanedChunk;
+      // Update the hint state with the modified data
+      setHints((prevHints: any) => [...prevHints, hintWithPrefix]);
+
+      // Read some more, and call this function again
+      return reader.read().then(processText);
+    });
+  }
+
+  useEffect(() => {
+    if (output !== '') { // Only trigger if output is not an empty string
+      // Remove newline characters from both output and testOutput
+      console.log("Output : ", output);
+      const normalizedOutput = output.replace(/\n/g, '');
+      console.log("Normailized output : ", normalizedOutput);
+      console.log("Test Output : ", testOutput);
+
+      if (testOutput === normalizedOutput) {
+        toast.success("Program executes successfully!");
+      } else {
+        toast.error("An Error has occurred!");
+        toast.success("Analysing Error Cause using AI...")
+        errorFix();
+      }
+    }
+  }, [output, testOutput]); // Include testOutput in the dependency array if its changes should also re-trigger this effect// Include testOutput in the dependency array if its changes should also re-trigger this effect
+
   return (
     <div className='p-3'>
+      <Toaster/>
       <div className='flex flex-row justify-between'>
         <Link href="/">
           <h1 className='text-4xl font-bold mb-4'>
