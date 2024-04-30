@@ -5,18 +5,24 @@ import Link from 'next/link';
 export default function landing() {
 
     const [problemStatement, setProblemStatement] = useState("");
+    const [input, setInput] = useState("");
+    const [testOutput, setTestOutput] = useState("");
     const router = useRouter();
 
     function updateProblemStatement(e: any) {
         e.preventDefault();
         if (problemStatement.trim() !== "") {
-            router.push(`/ide?problemStatement=${problemStatement}`);
+            // Encode the values to ensure they are URL-safe
+            const encodedProblemStatement = encodeURIComponent(problemStatement);
+            const encodedInput = encodeURIComponent(input);
+            const encodedTestOutput = encodeURIComponent(testOutput);
+
+            // Construct the URL with all parameters
+            router.push(`/ide?problemStatement=${encodedProblemStatement}&input=${encodedInput}&testOutput=${encodedTestOutput}`);
         } else {
-            // Add your logic here to handle the case where the textarea is empty
             alert("Please enter a problem statement before submitting.");
         }
     }
-
     return (
         <div className='flex h-screen justify-center items-center'>
             <div className='text-center'>
@@ -36,6 +42,14 @@ export default function landing() {
                             onChange={(e) => setProblemStatement(e.target.value)}
                             style={{ minWidth: '300px' }} // Set a minimum width for the textarea
                         />
+                        <div className='flex flex-col'>
+                            <h2 className='text-left font-semibold'>Test Input : </h2>
+                            <textarea value={input} onChange={(e) => setInput(e.target.value)} rows={2} cols={50} className='border p-2 mt-1 rounded-xl' />
+                        </div>
+                        <div className='flex flex-col'>
+                            <h2 className='text-left font-semibold'>Test Output : </h2>
+                            <textarea rows={2} cols={50} value={testOutput} onChange={(e) => setTestOutput(e.target.value)} className='border p-2 mt-1 rounded-xl' />
+                        </div>
                         <button className='bg-yellow-400 py-3 rounded-lg font-bold' onClick={updateProblemStatement}>
                             Get Started
                         </button>

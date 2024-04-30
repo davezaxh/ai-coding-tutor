@@ -8,12 +8,14 @@ import { useRouter } from 'next/router';
 export default function index() {
   const router = useRouter();
   const [code, setCode] = useState("");
-  const { problemStatement } = router.query;
+  const { problemStatement, input, testOutput } = router.query;
   const [language, setLanguage] = useState<string | null>(null);
   const [hints, setHints] = useState<string[]>([]);
   const [output, setOutput] = useState('');
 
   const [loading, setLoading] = useState(false);
+
+  console.log(input, testOutput);
 
   async function generateHint() {
     const response = await fetch('/api/hint', {
@@ -58,7 +60,7 @@ export default function index() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ code, language }),
+      body: JSON.stringify({ code, language, input }),
     });
 
     const data = await response.json();
@@ -116,9 +118,21 @@ export default function index() {
         </Link>
       </div>
       <div className='flex flex-col gap-2'>
-        <div >
-          <h1 className='text-xl font-semibold'>Problem Statement : </h1>
-          <p>{problemStatement}</p>
+        <div className='flex flex-row justify-between items-end'>
+          <div>
+            <h1 className='text-xl font-semibold'>Problem Statement : </h1>
+            <p>{problemStatement}</p>
+          </div>
+          <div className='flex flex-row gap-3'>
+            <div className='flex flex-row gap-2'>
+              <h1 className='font-semibold'>Test Input : </h1>
+              <p>{input}</p>
+            </div>
+            <div className='flex flex-row gap-2'>
+              <h1 className='font-semibold'>Test Output : </h1>
+              <p>{testOutput}</p>
+            </div>
+          </div>
         </div>
         <div className='h-[60vh] grid grid-cols-12 gap-2'>
           <div className='col-span-8 bg-gray-200 p-4 rounded-xl'>
