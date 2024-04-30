@@ -55,7 +55,7 @@ export default function index() {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ code, language}),
+        body: JSON.stringify({ code, language: "py"}),
     });
 
     const data = await response.json();
