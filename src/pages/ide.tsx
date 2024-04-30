@@ -13,6 +13,8 @@ export default function index() {
   const [hints, setHints] = useState<string[]>([]);
   const [output, setOutput] = useState('');
 
+  const [loading, setLoading] = useState(false);
+
   async function generateHint() {
     const response = await fetch('/api/hint', {
       method: 'POST',
@@ -49,19 +51,21 @@ export default function index() {
     });
   }
 
-  async function runCode(){ 
-     const response = await fetch('/api/compile', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code, language}),
+  async function runCode() {
+    setLoading(true);
+    const response = await fetch('/api/compile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ code, language }),
     });
 
     const data = await response.json();
     console.log(data);
     setOutput(data.output);
-  } 
+    setLoading(false);
+  }
 
   async function generateExplanation() {
     const response = await fetch('/api/explain', {
@@ -121,19 +125,25 @@ export default function index() {
             <div className='pb-3 flex flex-row justify-between'>
               <div className='flex flex-row gap-2'>
                 <h1 className='p-2'>Select Language : </h1>
-                <select className='p-2 bg-gray-100 rounded-lg' onChange={(e) => {setLanguage(e.target.value)}}>
+                <select className='p-2 bg-gray-100 rounded-lg' onChange={(e) => { setLanguage(e.target.value) }}>
                   <option value="js">Javascript</option>
                   <option value="py">Python</option>
                   <option value="cpp">C++</option>
                 </select>
               </div>
-              
+
               <div>
                 <button onClick={runCode} className='p-2 flex flex-row gap-2 font-bold rounded-lg bg-yellow-400 hover:bg-yellow-500'>
-                  <p>Run Code</p>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 my-1">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                  </svg>
+                  {loading ? <div className='flex flex-row gap-2'>
+                    <p>Running Code</p>
+                    <div className="border-gray-300 h-6 w-6 animate-spin rounded-full border-4 border-t-black" />
+                  </div>
+                    : <div className='flex flex-row gap-2'>
+                      <p>Run Code</p>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-4 h-4 my-1">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                      </svg>
+                    </div>}
                 </button>
               </div>
             </div>
@@ -177,8 +187,9 @@ export default function index() {
             </div>
           </div>
         </div>
-        <div className='p-2 bg-gray-700 h-[20vh]'>
-          {output}
+        <div className='p-2 bg-gray-700 h-[20vh] text-white'>
+          <h1 className='font-bold'>Output : </h1>
+          <p className='font-mono'>{output}</p>
         </div>
       </div>
     </div>

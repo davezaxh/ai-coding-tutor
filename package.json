@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@codemirror/lint": "^6.5.0",
     "@mdx-js/react": "^3.0.1",
     "@uiw/react-codemirror": "^4.21.25",
     "ai": "^3.0.18",
