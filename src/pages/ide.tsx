@@ -5,7 +5,7 @@ import { MDXProvider } from '@mdx-js/react'
 import { useRouter } from 'next/router';
 import toast, { Toaster } from 'react-hot-toast';
 
-export default function index() {
+export default function Index() {
   const router = useRouter();
   const [code, setCode] = useState("");
   const { problemStatement, input, testOutput } = router.query;

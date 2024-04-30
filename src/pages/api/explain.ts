@@ -5,7 +5,7 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-export default async function generateHint(req: NextApiRequest, res: NextApiResponse) {
+export default async function generateExplanation(req: NextApiRequest, res: NextApiResponse) {
     const { code, problemStatement, language } = req.body;
 
     const response = await openai.chat.completions.create({

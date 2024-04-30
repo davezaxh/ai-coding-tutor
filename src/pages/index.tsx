@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link';
 
-export default function landing() {
+export default function Landing() {
 
     const [problemStatement, setProblemStatement] = useState("");
     const [input, setInput] = useState("");
