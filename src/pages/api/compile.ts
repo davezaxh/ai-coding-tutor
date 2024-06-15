@@ -1,5 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { createClient } from '@supabase/supabase-js'
+
 const baseurl = process.env.JUDGE0_URL;
+const apiKey = process.env.JUDGE0_API_KEY;
+
 
 export default async function compileCode(req: NextApiRequest, res: NextApiResponse) {
     const { code, language, input } = req.body;
@@ -14,36 +18,42 @@ export default async function compileCode(req: NextApiRequest, res: NextApiRespo
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'x-rapidapi-key': `${apiKey}`,
+            'x-rapidapi-host': 'judge0-ce.p.rapidapi.com'
         },
         body: JSON.stringify({source_code : code, language_id : lid, stdin: input}),
     });
-    // console.log(code+"\n"+language);
     
     const data = await response.json();
     console.log(data);
-    // console.log(data);
     
     let output;
     await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for 1 second
-    const request = await fetch(`${baseurl}/submissions/batch?tokens=${data.token}`);
+    const request = await fetch(`${baseurl}/submissions/${data.token}`, {
+        method: 'GET',
+        headers: {
+            'x-rapidapi-key': `${apiKey}`,
+            'x-rapidapi-host': 'judge0-ce.p.rapidapi.com'
+        },
+    });
+
     output = await request.json();
-    // console.log(output);
 
     if(language !== "cpp"){
-        if(output.submissions[0].stdout === null){
-            res.status(200).json({output: output.submissions[0].stderr});
+        if(output.stdout === null){
+            res.status(200).json({output: output.stderr, token: data.token});
         }
-        else if(output.submissions[0].stderr === null){
-            res.status(200).json({output: output.submissions[0].stdout});   
+        else if(output.stderr === null){
+            res.status(200).json({output: output.stdout, token: data.token});   
         }
     }
 
     else{
-        if(output.submissions[0].stdout === null){
-            res.status(200).json({output: output.submissions[0].compile_output});
+        if(output.stdout === null){
+            res.status(200).json({output: output.compile_output, token: data.token});
         }
-        else if(output.submissions[0].compile_output === null){
-            res.status(200).json({output: output.submissions[0].stdout});
+        else if(output.compile_output === null){
+            res.status(200).json({output: output.stdout, token: data.token});
         }
     }
 

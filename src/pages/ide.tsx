@@ -4,14 +4,20 @@ import Link from 'next/link';
 import { MDXProvider } from '@mdx-js/react'
 import { useRouter } from 'next/router';
 import toast, { Toaster } from 'react-hot-toast';
+import { createClient } from '@supabase/supabase-js'
+
+const supaUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ' ';
+const supaKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ' ';
+const supaBase = createClient(supaUrl, supaKey);
 
 export default function Index() {
   const router = useRouter();
   const [code, setCode] = useState("");
-  const { problemStatement, input, testOutput } = router.query;
+  const {problemStatement, input, testOutput } = router.query;
   const [language, setLanguage] = useState<string | null>(null);
   const [hints, setHints] = useState<string[]>([]);
   const [output, setOutput] = useState('');
+
 
   const [loading, setLoading] = useState(false);
 
@@ -53,18 +59,35 @@ export default function Index() {
 
   async function runCode() {
     setLoading(true);
-    const response = await fetch('/api/compile', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ code, language, input }),
-    });
 
-    const data = await response.json();
-    console.log(data);
-    setOutput(data.output);
+    if (language!=null){
+      const request = await fetch('/api/compile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code, language, input }),
+      });
+    
+      const response = await request.json();
+      const {data, error} = await supaBase.from('outputs').insert([{tokenId: response.token}])
+      //console.log(error);
+
+      setOutput(response.output);
+      setLoading(false);
+  }
+
+  else{
     setLoading(false);
+    toast.error("Please select a language!", {duration: 1000});
+  }
+}
+
+  async function storeDets(){
+    const {data, error} =  await supaBase
+                        .from('inputs')
+                        .insert({problems: problemStatement, testInputs: input, testOutputs: testOutput})
+    //console.log(error);
   }
 
   async function generateExplanation() {
@@ -85,7 +108,7 @@ export default function Index() {
 
     reader.read().then(function processText({ done, value }): Promise<void> {
       if (done) {
-        console.log('Stream complete');
+        //console.log('Stream complete');
         return Promise.resolve();
       }
 
@@ -121,7 +144,7 @@ export default function Index() {
 
     reader.read().then(function processText({ done, value }): Promise<void> {
       if (done) {
-        console.log('Stream complete');
+        //console.log('Stream complete');
         return Promise.resolve();
       }
 
@@ -142,16 +165,16 @@ export default function Index() {
   useEffect(() => {
     if (output !== '') { // Only trigger if output is not an empty string
       // Remove newline characters from both output and testOutput
-      console.log("Output : ", output);
-      const normalizedOutput = output.replace(/\n/g, '');
-      console.log("Normailized output : ", normalizedOutput);
-      console.log("Test Output : ", testOutput);
+      //console.log("Output : ", output);
+      const normalizedOutput = output.replace(/n/g, '');
+      //console.log("Normailized output : ", normalizedOutput);
+      //console.log("Test Output : ", testOutput);
 
       if (testOutput === normalizedOutput) {
-        toast.success("Program executes successfully!");
+        toast.success("Program executed successfully!");
       } else {
-        toast.error("An Error has occurred!");
-        toast.success("Analysing Error Cause using AI...")
+        toast.error("An Error has occurred!", {duration: 1000});
+        toast.success("Analysing Error Cause using AI...");
         errorFix();
       }
     }
@@ -167,7 +190,9 @@ export default function Index() {
           </h1>
         </Link>
         <Link href="/" className='bg-yellow-400 py-3 px-6 rounded-lg font-bold'>
+          <button onClick={storeDets}>
           New Problem
+          </button>
         </Link>
       </div>
       <div className='flex flex-col gap-2'>
@@ -193,6 +218,7 @@ export default function Index() {
               <div className='flex flex-row gap-2'>
                 <h1 className='p-2'>Select Language : </h1>
                 <select className='p-2 bg-gray-100 rounded-lg' onChange={(e) => { setLanguage(e.target.value) }}>
+                  <option value=" ">Language</option>
                   <option value="js">Javascript</option>
                   <option value="py">Python</option>
                   <option value="cpp">C++</option>
