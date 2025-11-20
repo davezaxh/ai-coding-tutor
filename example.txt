@@ -1,1 +1,59 @@
-Hello World`
+-- Create outputs table
+CREATE TABLE IF NOT EXISTS public.outputs (
+  token_id TEXT PRIMARY KEY,
+  output TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create inputs table
+CREATE TABLE IF NOT EXISTS public.inputs (
+  token_id TEXT PRIMARY KEY,
+  problems TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  CONSTRAINT inputs_token_id_fkey FOREIGN KEY (token_id) 
+    REFERENCES public.outputs(token_id) ON DELETE CASCADE
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.outputs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.inputs ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for outputs table
+-- Allow public read access
+CREATE POLICY "Allow public read access on outputs"
+  ON public.outputs
+  FOR SELECT
+  USING (true);
+
+-- Allow public insert access
+CREATE POLICY "Allow public insert access on outputs"
+  ON public.outputs
+  FOR INSERT
+  WITH CHECK (true);
+
+-- Allow public update access
+CREATE POLICY "Allow public update access on outputs"
+  ON public.outputs
+  FOR UPDATE
+  USING (true)
+  WITH CHECK (true);
+
+-- RLS Policies for inputs table
+-- Allow public read access
+CREATE POLICY "Allow public read access on inputs"
+  ON public.inputs
+  FOR SELECT
+  USING (true);
+
+-- Allow public insert access
+CREATE POLICY "Allow public insert access on inputs"
+  ON public.inputs
+  FOR INSERT
+  WITH CHECK (true);
+
+-- Allow public update access
+CREATE POLICY "Allow public update access on inputs"
+  ON public.inputs
+  FOR UPDATE
+  USING (true)
+  WITH CHECK (true);
