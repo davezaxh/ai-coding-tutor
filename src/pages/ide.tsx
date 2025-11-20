@@ -9,6 +9,7 @@ import { createClient } from '@supabase/supabase-js'
 const supaUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ' ';
 const supaKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ' ';
 const supaBase = createClient(supaUrl, supaKey);
+const visualizer = process.env.VISUALIZER_URL || '';
 
 export default function Index() {
   const router = useRouter();
@@ -17,9 +18,17 @@ export default function Index() {
   const [language, setLanguage] = useState<string | null>(null);
   const [hints, setHints] = useState<string[]>([]);
   const [output, setOutput] = useState('');
-
-
   const [loading, setLoading] = useState(false);
+
+  async function generateVisuals(){
+     const response = await fetch(`${visualizer}/api/visualize`,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({problemStatement})
+     });
+  }
 
   async function generateHint() {
     const response = await fetch('/api/hint', {

@@ -13,3 +13,4 @@ Tasks to do :
 - [ ] Create landing page, blog, resources, etc.
 - [ ] Optimize for SEO
 - [ ] Get initial 100 users to use the application and get feedback to further improve this application.
+
